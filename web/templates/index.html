@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Document Authentication</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+
+  <body>
+    <main class="container">
+      <section class="card">
+        <div class="logo-icon">✓</div>
+
+        <h1>
+          Document
+          <span>Authentication</span>
+        </h1>
+
+        <p class="description">
+          Upload a scanned document to verify whether it is authentic or forged.
+        </p>
+
+        <form method="POST" enctype="multipart/form-data">
+          <label for="document" class="upload-area">
+            <span class="upload-icon"> ↑ </span>
+
+            <strong> Choose a scanned document </strong>
+
+            <small> PNG, JPG, JPEG, BMP, TIF or TIFF </small>
+          </label>
+
+          <input
+            type="file"
+            id="document"
+            name="document"
+            accept=".png,.jpg,.jpeg,.bmp,.tif,.tiff"
+            required
+          />
+
+          <p id="selected-file" class="selected-file"></p>
+
+          <button type="submit">Verify Document</button>
+        </form>
+
+        {% if error %}
+
+        <div class="message error">{{ error }}</div>
+
+        {% endif %} {% if result %}
+
+        <div
+          class="result {% if result == 'Authentic' %} authentic {% else %} forged {% endif %}"
+        >
+          <p>Verification Result</p>
+
+          <h2>{{ result }}</h2>
+
+          <span> Confidence: {{ "%.2f"|format(confidence) }}% </span>
+
+          <small>
+            Based on {{ patches_count }} extracted texture patches
+          </small>
+        </div>
+
+        {% endif %} {% if image_url %}
+
+        <img
+          class="preview"
+          src="{{ url_for('static', filename=image_url) }}"
+          alt="Uploaded document"
+        />
+
+        {% endif %}
+      </section>
+    </main>
+
+    <script>
+      const input = document.getElementById('document');
+      const selectedFile = document.getElementById('selected-file');
+
+      input.addEventListener('change', function () {
+        if (input.files.length > 0) {
+          selectedFile.textContent = input.files[0].name;
+        }
+      });
+    </script>
+  </body>
+</html>
