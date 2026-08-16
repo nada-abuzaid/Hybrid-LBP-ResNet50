@@ -1,0 +1,17 @@
+# Dataset
+document_authentication_web/datasets/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Jupyter temporary files
+.ipynb_checkpoints/
