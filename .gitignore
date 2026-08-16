@@ -1,5 +1,6 @@
 # Dataset
-document_authentication_web/datasets/
+web/datasets/
+web/static/uploads/
 
 # Python cache
 __pycache__/
