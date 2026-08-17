@@ -1,6 +1,6 @@
 steps:
 
-  # Download the real Keras model from Cloud Storage
+  # 1. Download the real Keras model from Cloud Storage
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk
     entrypoint: gcloud
     args:
@@ -9,7 +9,7 @@ steps:
       - gs://graduation-project-505807-models/paper_fingerprint_hybrid_lbp_resnet50_final.keras
       - model/paper_fingerprint_hybrid_lbp_resnet50_final.keras
 
-  # Verify model exists before Docker build
+  # 2. Verify model exists
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk
     entrypoint: bash
     args:
@@ -21,23 +21,21 @@ steps:
         du -h model/paper_fingerprint_hybrid_lbp_resnet50_final.keras
         echo "======================="
 
-  # Build Docker image
+  # 3. Build Docker image AFTER model download
   - name: gcr.io/cloud-builders/docker
     args:
       - build
       - -t
       - europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/hybrid-lbp-resnet50:$COMMIT_SHA
-      - -f
-      - Dockerfile
       - .
 
-  # Push Docker image
+  # 4. Push Docker image
   - name: gcr.io/cloud-builders/docker
     args:
       - push
       - europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/hybrid-lbp-resnet50:$COMMIT_SHA
 
-  # Deploy to Cloud Run
+  # 5. Deploy to Cloud Run
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk
     entrypoint: gcloud
     args:
