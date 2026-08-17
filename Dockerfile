@@ -16,6 +16,13 @@ RUN pip install --no-cache-dir --upgrade pip \
 
 COPY . .
 
+# Verify model exists INSIDE Docker image
+RUN echo "===== DOCKER MODEL CHECK =====" \
+    && ls -lh /app/model/ \
+    && test -f /app/model/paper_fingerprint_hybrid_lbp_resnet50_final.keras \
+    && du -h /app/model/paper_fingerprint_hybrid_lbp_resnet50_final.keras \
+    && echo "===== MODEL FOUND INSIDE IMAGE ====="
+
 EXPOSE 8080
 
 CMD ["gunicorn", "--bind", "0.0.0.0:8080", "web.app:app", "--workers", "1", "--threads", "1", "--timeout", "300"]
