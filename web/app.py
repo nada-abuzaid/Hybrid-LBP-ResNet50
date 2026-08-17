@@ -14,6 +14,9 @@ from skimage.feature import local_binary_pattern
 # Application Configuration
 # ============================================================
 
+tf.config.threading.set_intra_op_parallelism_threads(1)
+tf.config.threading.set_inter_op_parallelism_threads(1)
+
 app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(
@@ -631,66 +634,63 @@ def extract_document_patches(
 # Predict Document
 # ============================================================
 
-def predict_document(
-    image_path
-):
+def predict_document(image_path):
 
     image_patches, lbp_features = (
-        extract_document_patches(
-            image_path
-        )
+        extract_document_patches(image_path)
     )
 
-    predictions = model.predict(
-        {
-            "image_input":
-                image_patches,
+    predictions = []
 
-            "lbp_input":
-                lbp_features
-        },
-        verbose=0
-    ).reshape(-1)
+    for i in range(len(image_patches)):
 
-    # ========================================================
-    # Same document aggregation used in methodology:
-    # arithmetic mean
-    # ========================================================
+        prediction = model.predict(
+            {
+                "image_input": np.expand_dims(
+                    image_patches[i],
+                    axis=0
+                ),
+
+                "lbp_input": np.expand_dims(
+                    lbp_features[i],
+                    axis=0
+                )
+            },
+            batch_size=1,
+            verbose=0
+        ).reshape(-1)[0]
+
+        predictions.append(
+            float(prediction)
+        )
+
+    predictions = np.asarray(
+        predictions,
+        dtype=np.float32
+    )
 
     forged_probability = float(
-        np.mean(
-            predictions
-        )
+        np.mean(predictions)
     )
 
     authentic_probability = (
-        1.0
-        - forged_probability
+        1.0 - forged_probability
     )
 
-    if (
-        forged_probability
-        >= THRESHOLD
-    ):
+    if forged_probability >= THRESHOLD:
 
         result = "Forged"
-        confidence = (
-            forged_probability
-        )
+        confidence = forged_probability
 
     else:
 
         result = "Authentic"
-        confidence = (
-            authentic_probability
-        )
+        confidence = authentic_probability
 
     return {
-        "result":
-            result,
+        "result": result,
 
-        "confidence":
-            confidence * 100.0,
+        "confidence": confidence * 100.0,
 
         "forged_probability":
             forged_probability * 100.0,
@@ -704,7 +704,6 @@ def predict_document(
         "patch_predictions":
             predictions.tolist()
     }
-
 
 # ============================================================
 # Flask Route

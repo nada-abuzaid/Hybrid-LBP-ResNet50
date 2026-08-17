@@ -4,6 +4,9 @@ WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+
+# Disable oneDNN to avoid CPU-related SIGFPE issues on Cloud Run
+ENV TF_ENABLE_ONEDNN_OPTS=0
 ENV CUDA_VISIBLE_DEVICES=-1
 
 COPY requirements.txt .
@@ -15,4 +18,4 @@ COPY . .
 
 EXPOSE 8080
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "web.app:app", "--workers", "1", "--threads", "2", "--timeout", "300"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "web.app:app", "--workers", "1", "--threads", "1", "--timeout", "300"]
