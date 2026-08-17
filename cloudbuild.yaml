@@ -1,32 +1,40 @@
 steps:
-  - name: 'gcr.io/cloud-builders/docker'
+  - name: gcr.io/cloud-builders/docker
     args:
-      - 'build'
+      - build
       - '-t'
-      - 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/hybrid-lbp-resnet50:$COMMIT_SHA'
-      - '.'
+      - 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/hybrid-lbp-resnet50:latest'
+      - '-f'
+      - Dockerfile
+      - .
 
-  - name: 'gcr.io/cloud-builders/docker'
+  - name: gcr.io/cloud-builders/docker
     args:
-      - 'push'
-      - 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/hybrid-lbp-resnet50:$COMMIT_SHA'
+      - push
+      - 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/hybrid-lbp-resnet50:latest'
 
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
     args:
-      - 'run'
-      - 'deploy'
-      - 'hybrid-lbp-resnet50-git'
+      - run
+      - deploy
+      - hybrid-lbp-resnet50-git
       - '--image'
-      - 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/hybrid-lbp-resnet50:$COMMIT_SHA'
+      - 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/hybrid-lbp-resnet50:latest'
       - '--region'
-      - 'europe-west1'
+      - europe-west1
       - '--platform'
-      - 'managed'
-      - '--quiet'
+      - managed
+      - '--allow-unauthenticated'
+      - '--memory'
+      - '4Gi'
+      - '--cpu'
+      - '2'
+      - '--timeout'
+      - '300'
+    entrypoint: gcloud
 
 images:
-  - 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/hybrid-lbp-resnet50:$COMMIT_SHA'
+  - 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/hybrid-lbp-resnet50:latest'
 
 options:
   logging: CLOUD_LOGGING_ONLY
