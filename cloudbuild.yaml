@@ -9,6 +9,18 @@ steps:
       - gs://graduation-project-505807-models/paper_fingerprint_hybrid_lbp_resnet50_final.keras
       - model/paper_fingerprint_hybrid_lbp_resnet50_final.keras
 
+  # Verify model exists before Docker build
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        echo "===== MODEL CHECK ====="
+        ls -lh model/
+        file model/paper_fingerprint_hybrid_lbp_resnet50_final.keras
+        du -h model/paper_fingerprint_hybrid_lbp_resnet50_final.keras
+        echo "======================="
+
   # Build Docker image
   - name: gcr.io/cloud-builders/docker
     args:
